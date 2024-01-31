@@ -1,0 +1,5 @@
+services:
+  web:
+    command: nodemon bin/www.js
+    volumes:
+      - ./app:/src
