@@ -1,10 +1,68 @@
+volumes:
+  dbdata:
+    labels:
+      kompose.volume.size: '1Gi'
+
 services:
   web:
     image: rhub/rhub2-web:0.0.1
     build:
       context: app
+    environment:
+      - PG_USER=postgres
+      - PG_HOST=db
+      - PG_PASS_FILE=/db-password
+      - PORT=3000
     ports:
       - "3000:3000"
+    deploy:
+      update_config:
+        order: start-first
+        failure_action: rollback
+        delay: 10s
+      rollback_config:
+        parallelism: 0
+        order: stop-first
+      restart_policy:
+        condition: any
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+
+  db:
+    image: rhub/rhub2-db:0.0.1
+    build:
+      context: db
+    environment:
+      - PGDATA=/var/lib/postgresql/data
+      - POSTGRES_PASSWORD_FILE=/db-password
+    ports:
+      - "5432:5432"
+    volumes:
+      - dbdata:/var/lib/postgresql
+    deploy:
+      update_config:
+        order: start-first
+        failure_action: rollback
+        delay: 10s
+      rollback_config:
+        parallelism: 0
+        order: stop-first
+      restart_policy:
+        condition: any
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+
+  shell:
+    image: rhub/rhub2-shell:0.0.2
+    build:
+      context: shell
+    environment:
+      - PG_USER=postgres
+      - PG_HOST=db
+      - PG_PASS_FILE=/db-password
+      - PORT=3000
     deploy:
       update_config:
         order: start-first

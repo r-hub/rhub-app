@@ -1,32 +1,16 @@
 import express from 'express';
 import path from 'path';
-import fs from 'fs';
 import { fileURLToPath } from 'url';
 import logger from 'morgan';
 import cookieParser from 'cookie-parser';
-import { Octokit, App } from 'octokit'
+import createError from 'http-errors';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 export var xapp = express();
 
-const appId = process.env.APP_ID || "812047";
-const privateKeyPath = process.env.PRIVATE_KEY_PATH ||
-  "r-hub-2.2024-01-31.private-key.pem";
-const privateKey = fs.readFileSync(privateKeyPath, 'utf8')
-
-const ghapp = new App({
-  appId,
-  privateKey
-});
-
-// Optional: Get & log the authenticated app's name
-const { data } = await ghapp.octokit.request('/app')
-
-// Read more about custom logging: https://github.com/octokit/core.js#logging
-ghapp.octokit.log.warn(`Authenticated as '${data.name}'`)
-
+import apiRouter from './routes/api.js';
 import indexRouter from './routes/index.js';
 import usersRouter from './routes/users.js';
 
@@ -40,6 +24,7 @@ xapp.use(express.urlencoded({ extended: false }));
 xapp.use(cookieParser());
 xapp.use(express.static(path.join(__dirname, 'public')));
 
+xapp.use('/api', apiRouter);
 xapp.use('/', indexRouter);
 xapp.use('/users', usersRouter);
 
