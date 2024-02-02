@@ -11,8 +11,6 @@ const __dirname = path.dirname(__filename);
 export var xapp = express();
 
 import apiRouter from './routes/api.js';
-import indexRouter from './routes/index.js';
-import usersRouter from './routes/users.js';
 
 // view engine setup
 xapp.set('views', path.join(__dirname, 'views'));
@@ -25,8 +23,6 @@ xapp.use(cookieParser());
 xapp.use(express.static(path.join(__dirname, 'public')));
 
 xapp.use('/api', apiRouter);
-xapp.use('/', indexRouter);
-xapp.use('/users', usersRouter);
 
 // catch 404 and forward to error handler
 xapp.use(function(req, res, next) {

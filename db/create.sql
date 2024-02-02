@@ -2,7 +2,8 @@ CREATE TABLE IF NOT EXISTS users (
     email TEXT PRIMARY KEY,
     token TEXT,
     name TEXT,
-    repo_prefix TEXT
+    repo_prefix TEXT,
+    admin BOOLEAN
 );
 
 CREATE TABLE IF NOT EXISTS builds (
