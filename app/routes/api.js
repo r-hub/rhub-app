@@ -1,20 +1,20 @@
 import express from 'express';
 var router = express.Router();
 
-import gh from '../lib/gh.js';
+import ghapp from '../lib/gh.js';
 import pool from '../lib/pool.js';
 import auth from '../lib/auth.js';
 
 router.get('/-/repos', async function(req, res, next) {
   try {
     const user = await auth(req, res, { admin: true });
-    var repos = await gh.request('GET /orgs/{org}/repos', {
+    var oc = await ghapp.octokit();
+    var repos = await oc.request('GET /orgs/{org}/repos', {
       org: 'r-hub2'
     })
     res.send(repos);
   } catch (err) { next(err); }
 });
-
 
 router.put('/-/repo/:name', async function(req, res, next) {
   try {
