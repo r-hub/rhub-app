@@ -29,6 +29,35 @@ class GHApp {
     }
     return this.octokit_
   }
+
+  async create_repo(repo, options) {
+    options = options || {};
+    var oc = await this.octokit();
+    var ret = await oc.request("POST /orgs/{org}/repos",  {
+      org: 'r-hub2',
+      name: repo,
+      description: options.description || 'Created by R-hub',
+      'private': false
+    });
+    return ret;
+  }
+
+  async list_repos() {
+    var oc = await this.octokit();
+    var repos = await oc.request('GET /orgs/{org}/repos', {
+      org: 'r-hub2'
+    })
+    return repos;
+  }
+
+  async delete_repo(repo) {
+    var oc = await this.octokit();
+    var ret = await oc.request('DELETE /repos/{owner}/{repo}', {
+      owner: 'r-hub2',
+      repo: repo
+    })
+    return ret;
+  }
 }
 
 var ghapp = new GHApp(appId, privateKey);

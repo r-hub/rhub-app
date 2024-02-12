@@ -1,6 +1,18 @@
 import express from 'express';
 var router = express.Router();
 
+import multer from 'multer';
+const upload = multer({
+  dest: '/uploads/',
+  limits: {
+    fields: 100,
+    fieldSize: 100 * 1024,
+    fileSize: 5 * 1024 * 1024,
+    files: 1,
+    parts: 101
+  }
+});
+
 import ghapp from '../lib/gh.js';
 import pool from '../lib/pool.js';
 import auth from '../lib/auth.js';
@@ -8,18 +20,24 @@ import auth from '../lib/auth.js';
 router.get('/-/repos', async function(req, res, next) {
   try {
     const user = await auth(req, res, { admin: true });
-    var oc = await ghapp.octokit();
-    var repos = await oc.request('GET /orgs/{org}/repos', {
-      org: 'r-hub2'
-    })
-    res.send(repos);
+    var repos = await ghapp.list_repos();
+    res.send(repos.data);
   } catch (err) { next(err); }
 });
 
-router.put('/-/repo/:name', async function(req, res, next) {
+router.post('/-/repo/:name', async function(req, res, next) {
   try {
     const user = await auth(req, res, { admin: true });
-    // TODO
+    var ret = await ghapp.create_repo(req.params.name);
+    res.send(ret);
+  } catch (err) { next(err); }
+})
+
+router.delete('/-/repo/:name', async function(req, res, next) {
+  try {
+    const user = await auth(req, res, { admin: true });
+    var ret = await ghapp.delete_repo(req.params.name);
+    res.send(ret);
   } catch (err) { next(err); }
 })
 
@@ -39,11 +57,30 @@ router.get('/-/build/:id', async function(req, res, next) {
   try {
     const user = await auth(req, res, { admin: true });
     // TODO
-  } catch(err) { next(ero); }
+  } catch(err) { next(err); }
 });
 
-router.post('/-/build', async function(req, res, next) {
+// admin: create user
+router.post('/-/user/:email', async function(req, res, next) {
+  try {
+    const user = await auth(req, res, { admin: true });
+    // TODO
+  } catch(err) { next(err); }
+})
 
+// create job
+router.post(
+  '/-/job/:package',
+  upload.single('package'),
+  async function(req, res, next) {
+    try {
+      const user = await auth(req, res, { admin: false });
+      console.log(user);
+      console.log("upload");
+      console.log(req.body.key1);
+      console.log(req.file);
+      res.send("OK");
+    } catch(err) { next(err); }
 });
 
 export default router;
