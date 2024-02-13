@@ -5,6 +5,9 @@ volumes:
   uploads:
     labels:
       kompose.volume.size: '10Gi'
+  repos:
+    labels:
+      kompose.volume.size: '10Gi'
 
 services:
   web:
@@ -20,6 +23,7 @@ services:
       - "3000:3000"
     volumes:
       - uploads:/uploads
+      - repos:/repos
     deploy:
       update_config:
         order: start-first

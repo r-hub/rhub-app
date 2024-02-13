@@ -11,7 +11,12 @@ CREATE TABLE IF NOT EXISTS builds (
     email TEXT,
     submitted_at TIMESTAMP,
     repo_name TEXT,
-    status TEXT
+    file_name TEXT,
+    upload_path TEXT,
+    -- created, submitted, requeued
+    status TEXT,
+    error TEXT,
+    link TEXT
 );
 
 CREATE INDEX IF NOT EXISTS idx_builds ON builds(id);

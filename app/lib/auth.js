@@ -10,7 +10,8 @@ async function auth(req, res, options) {
   }
   const token = header.replace(/^[bB]earer /, "");
   const user = await pool.query(
-    `SELECT * FROM users WHERE token = '${token}'`
+    'SELECT * FROM users WHERE token = $1::text',
+    [token]
   );
   if (user.rows.length == 0) {
     var err = new Error("No such user");
