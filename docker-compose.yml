@@ -2,6 +2,9 @@ volumes:
   dbdata:
     labels:
       kompose.volume.size: '1Gi'
+  qdata:
+    labels:
+      kompose.volume.size: '1Gi'
   uploads:
     labels:
       kompose.volume.size: '10Gi'
@@ -10,6 +13,9 @@ volumes:
       kompose.volume.size: '10Gi'
 
 services:
+
+  # Main web app that is open to the world, runs the API and the web site.
+  # Puts submissions into /uploads + the DB + the queue.
   web:
     image: rhub/rhub2-web:0.0.1
     build:
@@ -23,6 +29,35 @@ services:
       - "3000:3000"
     volumes:
       - uploads:/uploads
+    deploy:
+      update_config:
+        order: start-first
+        failure_action: rollback
+        delay: 10s
+      rollback_config:
+        parallelism: 0
+        order: stop-first
+      restart_policy:
+        condition: any
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+
+  # Runs the jobs on GHA. Takes submissions from the queue, then takes
+  # uploads and submits them to GH. Updates the DB accordingly.
+  scheduler:
+    image: rhub/rhub2-scheduler:0.0.1
+    build:
+      context: scheduler
+    environment:
+      - PG_USER=postgres
+      - PG_HOST=db
+      - PG_PASS_FILE=/db-password
+      - PORT=3001
+    ports:
+      - "3001:3001"
+    volumes:
+      - uploads:/uploads:ro
       - repos:/repos
     deploy:
       update_config:
@@ -38,6 +73,7 @@ services:
         max_attempts: 3
         window: 120s
 
+  # Database of users, jobs, etc.
   db:
     image: rhub/rhub2-db:0.0.1
     build:
@@ -63,6 +99,35 @@ services:
         max_attempts: 3
         window: 120s
 
+  # Message queue. We have this to have an easier organization, and to
+  # offload tasks from the main web app. git operations might take some
+  # time, GH might be down, etc., so it is better to do this in another
+  # container.
+  queue:
+    image: rhub/rhub2-aueue:0.0.4
+    build:
+      context: queue
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - qdata:/var/lib/rabbitmq
+    deploy:
+      update_config:
+        order: start-first
+        failure_action: rollback
+        delay: 10s
+      rollback_config:
+        parallelism: 0
+        order: stop-first
+      restart_policy:
+        condition: any
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+
+  # For debugging, to connect to the database, the scheduler, or the
+  # queue directly.
   shell:
     image: rhub/rhub2-shell:0.0.2
     build:
@@ -71,7 +136,6 @@ services:
       - PG_USER=postgres
       - PG_HOST=db
       - PG_PASS_FILE=/db-password
-      - PORT=3000
     deploy:
       update_config:
         order: start-first

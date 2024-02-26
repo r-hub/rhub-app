@@ -3,3 +3,8 @@ services:
     command: nodemon bin/www.js
     volumes:
       - ./app:/src
+
+  scheduler:
+    command: nodemon bin/www
+    volumes:
+      - ./scheduler:/src

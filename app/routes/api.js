@@ -13,12 +13,16 @@ const upload = multer({
   }
 });
 
+import amqplib from 'amqplib';
+
 import ghapp from '../lib/gh.js';
 import pool from '../lib/pool.js';
 import auth from '../lib/auth.js';
 import git from '../lib/git.js';
 
 // public API =============================================================
+
+const broker_url = 'amqp://queue';
 
 // create job
 router.post(
@@ -28,17 +32,35 @@ router.post(
     try {
       const user = await auth(req, res, { admin: false });
       const repo = user.repo_prefix + req.params.package;
-      // TODO: force configurable delay
+      const now = new Date(new Date().toISOString());
+      const path = req.file.path;
+      const filename = req.file.originalname;
+
+      // TODO: force configurable delay between submissions
       await pool.query(
         'INSERT INTO builds \
         (email, submitted_at, repo_name, file_name, upload_path, status) \
         VALUES \
         ($1::text, $2::timestamp, $3::text, $4::text, $5::text, $6::text)',
         [
-          user.email, new Date(new Date().toISOString()), repo,
-          req.file.path, req.file.originalname, 'created'
+          user.email, now, repo, path, filename, 'created'
         ]
       );
+
+      var conn = await amqplib.connect(broker_url);
+      var channel = await conn.createChannel();
+      channel.assertQueue('job');
+
+      const job = {
+        email: user.email,
+        time: now,
+        repo: repo,
+        path: path,
+        filename: filename
+      };
+
+      await channel.sendToQueue('job', Buffer.from(JSON.stringify(job)));
+
       res.send("OK");
     } catch(err) { next(err); }
 });
