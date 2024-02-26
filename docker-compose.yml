@@ -46,7 +46,7 @@ services:
   # Runs the jobs on GHA. Takes submissions from the queue, then takes
   # uploads and submits them to GH. Updates the DB accordingly.
   scheduler:
-    image: rhub/rhub2-scheduler:0.0.1
+    image: rhub/rhub2-scheduler:0.0.2
     build:
       context: scheduler
     environment:
