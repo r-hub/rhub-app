@@ -1,0 +1,8 @@
+Package: rhub2shell
+Version: 1.0.0
+License: MIT
+Imports:
+    httr2,
+    jsonlite,
+    pillar,
+    RPostgres

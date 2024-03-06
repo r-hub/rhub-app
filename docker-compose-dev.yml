@@ -8,3 +8,10 @@ services:
     command: nodemon bin/www
     volumes:
       - ./scheduler:/src
+
+  shell:
+    volumes:
+      - ./shell/DESCRIPTION:/DESCRIPTION
+      - ./shell/R:/R
+    environment:
+      - RHUB2_TOKEN=2f646deb-cbe1-443e-8d4a-890534c96633

@@ -1,14 +1,13 @@
-
 FROM rhub/r-minimal
 
-RUN apk update
-RUN apk add postgresql13-dev
-RUN installr -d RPostgres
-RUN apk add postgresql13-client
-
-RUN echo "dbpassword" > /db-password
-
+COPY DESCRIPTION /
 COPY R /R
 WORKDIR /R
+RUN installr -d -p \
+    -t "postgresql13-dev curl-dev" \
+    -a "libcurl postgresql13-client" \
+    deps::.
+
+RUN echo "dbpassword" > /db-password
 
 CMD ["crond", "-f"]

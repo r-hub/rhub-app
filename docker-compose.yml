@@ -129,7 +129,7 @@ services:
   # For debugging, to connect to the database, the scheduler, or the
   # queue directly.
   shell:
-    image: rhub/rhub2-shell:0.0.2
+    image: rhub/rhub2-shell:0.0.4
     build:
       context: shell
     environment:

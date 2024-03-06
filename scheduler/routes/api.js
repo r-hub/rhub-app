@@ -12,7 +12,6 @@ import git from '../lib/git.js';
 // TODO: pagination
 router.get('/-/admin/repos', async function(req, res, next) {
     try {
-      const user = await auth(req, res, { admin: true });
       var repos = await ghapp.list_repos();
       res.send(repos.data);
     } catch (err) { next(err); }
@@ -21,7 +20,6 @@ router.get('/-/admin/repos', async function(req, res, next) {
 // create GH repo
 router.post('/-/admin/repo/:name', async function(req, res, next) {
     try {
-      const user = await auth(req, res, { admin: true });
       var ret = await ghapp.create_repo(req.params.name);
       res.send(ret);
     } catch (err) { next(err); }
@@ -30,43 +28,38 @@ router.post('/-/admin/repo/:name', async function(req, res, next) {
 // delete GH repo
 router.delete('/-/admin/repo/:name', async function(req, res, next) {
     try {
-      const user = await auth(req, res, { admin: true });
       var ret = await ghapp.delete_repo(req.params.name);
       res.send(ret);
     } catch (err) { next(err); }
 })
 
 // clone GH repo
-router.get('/-/admin/repo/clone/:name', async function(req, res, next) {
+router.get('/-/admin/clone/create/:name', async function(req, res, next) {
     try {
-      const user = await auth(req, res, { admin: true });
       var ret = await git.clone_repo(req.params.name);
-      res.send(ret)
+      res.send({ output: ret })
     } catch (err) { next(err); }
 })
 
 // clean cloned GH repo
-router.get('/-/admin/repo/clean/:name', async function(req, res, next) {
+router.get('/-/admin/clone/clean/:name', async function(req, res, next) {
     try {
-      const user = await auth(req, res, { admin: true });
       var ret = await git.clean_repo(req.params.name);
-      res.send(ret);
+      res.send({ output: ret });
     } catch(err) { next(err); }
 })
 
 // check if cloned repo exists
-router.get('/-/admin/repo/check/:name', async function(req, res, next) {
+router.get('/-/admin/clone/check/:name', async function(req, res, next) {
     try {
-      const user = await auth(req, res, {admin: true });
       var ret = await git.repo_exists(req.params.name);
       res.send(ret);
     } catch(err) { next(err); }
 })
 
 // remove a cloned repo
-router.get('/-/admin/repo/prune-clone/:name', async function(req, res, next) {
+router.get('/-/admin/clone/prune/:name', async function(req, res, next) {
     try {
-      const user = await auth(req, res, {admin: true });
       var ret = await git.prune_clone(req.params.name);
       res.send(ret);
     } catch(err) { next(err); }
