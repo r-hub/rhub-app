@@ -41,6 +41,10 @@ scheduler <- local({
     query(paste0("/-/admin/clone/prune/", name))
   }
 
+  sch_clone_ensure <- function(name) {
+    query(paste0("/-/admin/clone/ensure/", name))
+  }
+
   list(
     # low level API
     .internal     = environment(),
@@ -50,6 +54,7 @@ scheduler <- local({
     clone_check   = sch_clone_check,
     clone_clean   = sch_clone_clean,
     clone_create  = sch_clone_create,
+    clone_ensure  = sch_clone_ensure,
     clone_prune   = sch_clone_prune,
 
     repo_create   = sch_repo_create,

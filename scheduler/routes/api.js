@@ -57,11 +57,19 @@ router.get('/-/admin/clone/check/:name', async function(req, res, next) {
     } catch(err) { next(err); }
 })
 
+// ensure that the cloned repo exists
+router.get('/-/admin/clone/ensure/:name', async function(req, res, next) {
+  try {
+    var ret = await git.ensure_repo(req.params.name);
+    res.send({ output: ret });
+  } catch(err) { next(err); }
+})
+
 // remove a cloned repo
 router.get('/-/admin/clone/prune/:name', async function(req, res, next) {
     try {
       var ret = await git.prune_clone(req.params.name);
-      res.send(ret);
+      res.send({ output: ret });
     } catch(err) { next(err); }
 })
 
