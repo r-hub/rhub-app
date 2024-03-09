@@ -26,20 +26,11 @@ api <- local({
     query(method = "POST", "/-/user/validate", form = list(email = email))
   }
 
-  user_create <- function(email, token = NULL, name = NULL,
-                          repo_prefix = NULL, admin = FALSE) {
-
-  }
-
   job_create <- function(name, file) {
 
   }
 
   job_info <- function(id) {
-
-  }
-
-  job_create_from_url <- function(url) {
 
   }
 
@@ -53,10 +44,6 @@ api <- local({
     job_info            = job_info,
 
     user_list           = user_list,
-    user_create         = user_create,
     user_validate       = user_validate,
-
-    # Functions for testing
-    job_create_from_url = job_create_from_url
   )
 })
