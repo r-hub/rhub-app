@@ -13,17 +13,15 @@ const upload = multer({
   }
 });
 
-import amqplib from 'amqplib';
 import { v4 as uuidv4 } from 'uuid';
 import { uniqueNamesGenerator, adjectives, animals } from 'unique-names-generator';
 
 import pool from '../lib/pool.js';
 import auth from '../lib/auth.js';
+import ghapp from '../lib/gh.js';
 import mail_token from '../lib/mail-token.js';
 
 // public API =============================================================
-
-const broker_url = 'amqp://queue';
 
 // create job
 router.post(
@@ -47,20 +45,6 @@ router.post(
           user.email, now, repo, path, filename, 'created'
         ]
       );
-
-      var conn = await amqplib.connect(broker_url);
-      var channel = await conn.createChannel();
-      channel.assertQueue('job');
-
-      const job = {
-        email: user.email,
-        time: now,
-        repo: repo,
-        path: path,
-        filename: filename
-      };
-
-      await channel.sendToQueue('job', Buffer.from(JSON.stringify(job)));
 
       res.send("OK");
     } catch(err) { next(err); }
@@ -139,5 +123,39 @@ router.get('/-/admin/build/:id', async function(req, res, next) {
     // TODO
   } catch(err) { next(err); }
 });
+
+// repos ------------------------------------------------------------------
+// list all GH repos
+// TODO: pagination
+router.get('/-/admin/repos', async function(req, res, next) {
+  try {
+    var repos = await ghapp.list_repos();
+    res.send(repos.data);
+  } catch (err) { next(err); }
+});
+
+// create GH repo
+router.post('/-/admin/repo/:name', async function(req, res, next) {
+  try {
+    var ret = await ghapp.create_repo(req.params.name);
+    res.send(ret);
+  } catch(err) { next(err); }
+})
+
+// delete GH repo
+router.delete('/-/admin/repo/:name', async function(req, res, next) {
+  try {
+    var ret = await ghapp.delete_repo(req.params.name);
+    res.send(ret);
+  } catch (err) { next(err); }
+})
+
+// get workflow file from repo
+router.get('/-/admin/repo/:name/workflow', async function(req, res, next) {
+try {
+  var ret = await ghapp.get_contents(req.params.name, '.github/workflows/rhub-rc.yaml')
+  res.send(ret);
+} catch(err) { next(err); }
+})
 
 export default router;

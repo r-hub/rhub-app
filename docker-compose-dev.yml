@@ -4,11 +4,6 @@ services:
     volumes:
       - ./app:/src
 
-  scheduler:
-    command: nodemon bin/www
-    volumes:
-      - ./scheduler:/src
-
   shell:
     volumes:
       - ./shell/DESCRIPTION:/DESCRIPTION

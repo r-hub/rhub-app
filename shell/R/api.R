@@ -44,6 +44,6 @@ api <- local({
     job_info            = job_info,
 
     user_list           = user_list,
-    user_validate       = user_validate,
+    user_validate       = user_validate
   )
 })
