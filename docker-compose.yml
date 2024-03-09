@@ -17,7 +17,7 @@ services:
   # Main web app that is open to the world, runs the API and the web site.
   # Puts submissions into /uploads + the DB + the queue.
   web:
-    image: rhub/rhub2-web:0.0.1
+    image: rhub/rhub2-web:0.0.2
     build:
       context: app
     environment:
@@ -46,7 +46,7 @@ services:
   # Runs the jobs on GHA. Takes submissions from the queue, then takes
   # uploads and submits them to GH. Updates the DB accordingly.
   scheduler:
-    image: rhub/rhub2-scheduler:0.0.2
+    image: rhub/rhub2-scheduler:0.0.3
     build:
       context: scheduler
     environment:
@@ -75,7 +75,7 @@ services:
 
   # Database of users, jobs, etc.
   db:
-    image: rhub/rhub2-db:0.0.1
+    image: rhub/rhub2-db:0.0.2
     build:
       context: db
     environment:
@@ -129,7 +129,7 @@ services:
   # For debugging, to connect to the database, the scheduler, or the
   # queue directly.
   shell:
-    image: rhub/rhub2-shell:0.0.4
+    image: rhub/rhub2-shell:0.0.5
     build:
       context: shell
     environment:

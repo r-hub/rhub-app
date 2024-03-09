@@ -1,4 +1,5 @@
 import { Octokit, App } from 'octokit'
+import { createHash } from 'crypto';
 import fs from 'fs';
 
 const appId = process.env.APP_ID || "812047";
@@ -33,15 +34,34 @@ class GHApp {
   async create_repo(repo, options) {
     options = options || {};
     var oc = await this.octokit();
-    var ret = await oc.request("POST /orgs/{org}/repos",  {
-      org: 'r-hub2',
-      name: repo,
-      description: options.description || 'Created by R-hub',
-      'private': false
-    });
-    return ret;
+    try {
+      const ret = await oc.request(
+        'POST /repos/{template_owner}/{template_repo}/generate', {
+          template_owner: 'r-hub2',
+          template_repo: 'template',
+          owner: 'r-hub2',
+          name: repo,
+          description: options.description || 'Created by R-hub',
+          include_all_branches: false,
+          'private': false,
+          headers: {
+            'X-GitHub-Api-Version': '2022-11-28'
+          }
+        }
+      )
+      return({ new: true, response: ret })
+    } catch (error) {
+      // Maybe it already exists.
+      if (error.response.status == 422 &&
+         !! error.response.data.message.match(/already exists/)) {
+          return({ new: false, response: error.response })
+      } else {
+        throw error;
+      }
+    }
   }
 
+  // TODO: paginate
   async list_repos() {
     var oc = await this.octokit();
     var repos = await oc.request('GET /orgs/{org}/repos', {
@@ -57,6 +77,23 @@ class GHApp {
       repo: repo
     })
     return ret;
+  }
+
+  async get_contents(repo, path) {
+    var oc = await this.octokit();
+    var ret = await oc.request(
+      'GET /repos/{owner}/{repo}/contents/{path}', {
+        owner: 'r-hub2',
+        repo: repo,
+        path: path,
+        headers: {
+          'X-GitHub-Api-Version': '2022-11-28'
+        }
+      }
+    )
+    const cnt = atob(ret.data.content);
+    const sha = createHash('sha256').update(cnt).digest('hex');
+    return { workflow: cnt, sha256: sha, response: ret };
   }
 }
 

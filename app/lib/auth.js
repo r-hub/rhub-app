@@ -10,7 +10,9 @@ async function auth(req, res, options) {
   }
   const token = header.replace(/^[bB]earer /, "");
   const user = await pool.query(
-    'SELECT * FROM users WHERE token = $1::text',
+    "SELECT * FROM users u, tokens t" +
+    "  WHERE u.email = t.email AND t.token = $1::text AND" +
+    "        t.status = 'validated'",
     [token]
   );
   if (user.rows.length == 0) {

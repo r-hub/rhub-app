@@ -37,14 +37,23 @@ db <- local({
   }
 
   db_init_test_data <- function() {
-    db_execute(
-      "INSERT INTO users VALUES (?email, ?token, ?name, ?prefix, ?admin)",
-      email = "csardi.gabor@gmail.com",
-      token = Sys.getenv("RHUB2_TOKEN"),
-      name = "Gabor Csardi",
-      prefix = "uncrystallised-groundhog-",
-      admin = TRUE
-    )
+    email <- "csardi.gabor@gmail.com"
+    token <- Sys.getenv("RHUB2_TOKEN")
+    db_transaction({
+      db_execute(
+        "INSERT INTO users VALUES (?email, ?name, ?prefix, ?admin)",
+         email = email,
+         name = "Gabor Csardi",
+         prefix = "uncrystallised-groundhog-",
+         admin = TRUE
+       )
+       db_execute(
+        "INSERT INTO tokens VALUES (?email, ?token, ?status)",
+        email = email,
+        token = token,
+        status = "validated"
+       )
+    })
   }
 
   db_list_users <- function() {

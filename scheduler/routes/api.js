@@ -33,6 +33,14 @@ router.delete('/-/admin/repo/:name', async function(req, res, next) {
     } catch (err) { next(err); }
 })
 
+// get workflow file from repo
+router.get('/-/admin/repo/:name/workflow', async function(req, res, next) {
+  try {
+    var ret = await ghapp.get_contents(req.params.name, '.github/workflows/rhub-rc.yaml')
+    res.send(ret);
+  } catch(err) { next(err); }
+})
+
 // clone GH repo
 router.get('/-/admin/clone/create/:name', async function(req, res, next) {
     try {

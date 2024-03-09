@@ -1,10 +1,22 @@
 CREATE TABLE IF NOT EXISTS users (
     email TEXT PRIMARY KEY,
-    token TEXT,
     name TEXT,
     repo_prefix TEXT,
     admin BOOLEAN
 );
+
+CREATE INDEX IF NOT EXISTS idx_users ON users(email);
+CREATE INDEX IF NOT EXISTS idx_users2 ON users(repo_prefix);
+
+CREATE TABLE IF NOT EXISTS tokens (
+    email TEXT,
+    token TEXT,
+    -- pending, validated
+    status TEXT
+);
+
+CREATE INDEX IF NOT EXISTS idx_tokens ON tokens(email);
+CREATE INDEX IF NOT EXISTS idx_tokens2 ON tokens(token, status);
 
 CREATE TABLE IF NOT EXISTS builds (
     id SERIAL PRIMARY KEY,

@@ -14,9 +14,12 @@ const upload = multer({
 });
 
 import amqplib from 'amqplib';
+import { v4 as uuidv4 } from 'uuid';
+import { uniqueNamesGenerator, adjectives, animals } from 'unique-names-generator';
 
 import pool from '../lib/pool.js';
 import auth from '../lib/auth.js';
+import mail_token from '../lib/mail-token.js';
 
 // public API =============================================================
 
@@ -66,6 +69,48 @@ router.post(
 // admin API ==============================================================
 
 // users ------------------------------------------------------------------
+// create user, i.e. validate email
+router.post('/-/user/validate', async function(req, res, next) {
+  try {
+    const data = req.body;
+    // If there is no email
+    if (! data.email ) {
+      return res.set('Content-Type', 'application/json; charset=utf-8')
+        .status(400)
+        .send(JSON.stringify({
+          "result": "error",
+          "message": "Invalid data, no 'email' field"
+        }));
+    }
+
+    const token = uuidv4();
+    const repo_prefix = uniqueNamesGenerator({
+      dictionaries: [adjectives, animals],
+      separator: '-',
+      length: 2
+    }) + '-';
+
+    await pool.query(
+      'INSERT INTO tokens VALUES ($1::text, $2::text, $3::text)',
+      [ data.email, token, 'validated']
+    );
+
+    await mail_token(data.email, token);
+
+    // If there is no user yet for this email, then also add a user,
+    // to have a repo prefix.
+    await pool.query(
+      'INSERT INTO users (email, repo_prefix, admin) \
+       VALUES ($1::text, $2::text, false) \
+       ON CONFLICT DO NOTHING',
+       [data.email, repo_prefix]
+    )
+
+    res.send({ result: "ok" });
+
+  } catch(err) { next(err); }
+})
+
 // admin: list all users
 // TODO: pagination
 router.get('/-/admin/users', async function(req, res, next) {
@@ -91,7 +136,7 @@ router.post('/-/admin/user/:email', async function(req, res, next) {
 router.get('/-/admin/build/:id', async function(req, res, next) {
   try {
     const user = await auth(req, res, { admin: true });
-
+    // TODO
   } catch(err) { next(err); }
 });
 
