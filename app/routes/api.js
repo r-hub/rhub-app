@@ -29,6 +29,10 @@ import mail_token from '../lib/mail-token.js';
   res.write(`data: ${JSON.stringify(msg)}\n\n`);
 }
 
+async function delay(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 // create job
 router.post(
   '/-/job/:package',
@@ -79,9 +83,16 @@ router.post(
       );
 
       if (!exists) {
-        send_message(res, "progress", "Creating repository");
-        await ghapp.create_repo(repo);
-        await ghapp.wait_for_repo(repo);
+        const repo_url = 'https://github.com/r-hub2/' + repo;
+        send_message(res, "progress", "Creating repository at " + repo_url);
+        try {
+          await ghapp.create_repo(repo);
+        } catch(err) {
+          send_message(res, "error", "Failed to create repository.");
+          return res.end();
+        }
+        send_message(res, "progress", "Waiting 5s for repository")
+        await delay(5000);
       }
 
       send_message(res, "progress", "Creating build");
@@ -90,7 +101,16 @@ router.post(
       const pkgurl = 'https://cran.r-project.org/src/contrib/tiff_0.1-12.tar.gz';
       const name = data.name || data.config;
       const id = data.id || '';
-      await ghapp.start_workflow(repo, pkgurl, data.config, name, id);
+      try {
+        await ghapp.start_workflow(repo, pkgurl, data.config, name, id);
+      } catch(err) {
+        send_message(
+          res,
+          "error",
+          "Failed to start build job. Try again in a minute."
+        );
+        return res.end();
+      }
 
       send_message(res, "result", "OK")
       res.end();
