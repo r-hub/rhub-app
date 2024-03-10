@@ -38,18 +38,33 @@ api <- local({
     query(paste0("/-/admin/repo-exists/", repo))
   }
 
+  repo_wait <- function(repo) {
+    query(paste0("/-/admin/repo-wait/", repo))
+  }
+
+  repo_delete <- function(repo) {
+    query(method = "DELETE", paste0("/-/admin/repo/", repo))
+  }
+
+  repo_list <- function() {
+    query("/-/admin/repos")
+  }
+
   list(
     # Internals
-    .internal           = environment(),
-    query               = query,
+    .internal     = environment(),
+    query         = query,
 
     # API
-    job_create          = job_create,
-    job_info            = job_info,
+    job_create    = job_create,
+    job_info      = job_info,
 
-    user_list           = user_list,
-    user_validate       = user_validate,
+    user_list     = user_list,
+    user_validate = user_validate,
 
-    repo_exists         = repo_exists
+    repo_delete   = repo_delete,
+    repo_exists   = repo_exists,
+    repo_list     = repo_list,
+    repo_wait     = repo_wait
   )
 })

@@ -81,13 +81,13 @@ router.post(
       if (!exists) {
         send_message(res, "progress", "Creating repository");
         await ghapp.create_repo(repo);
-        // TOOD: need to wait for the repo to be created :(
+        await ghapp.wait_for_repo(repo);
       }
 
       send_message(res, "progress", "Creating build");
 //      const pkgurl = req.protocol + '://' + req.get('host') +
 //        '/-/api/-/package/' + path.split(/[\\/]/).pop();
-      const pkgurl = 'https://cran.rstudio.com/src/contrib/ps_1.7.6.tar.gz';
+      const pkgurl = 'https://cran.r-project.org/src/contrib/tiff_0.1-12.tar.gz';
       const name = data.name || data.config;
       const id = data.id || '';
       await ghapp.start_workflow(repo, pkgurl, data.config, name, id);
@@ -174,6 +174,13 @@ router.get('/-/admin/build/:id', async function(req, res, next) {
 router.get("/-/admin/repo-exists/:name", async function(req, res, next) {
   try {
     const ret = await ghapp.repo_exists(req.params.name);
+    res.send(ret);
+  } catch (err) { next(err); }
+});
+
+router.get("/-/admin/repo-wait/:name", async function(req, res, next) {
+  try {
+    const ret = await ghapp.wait_for_repo(req.params.name);
     res.send(ret);
   } catch (err) { next(err); }
 });

@@ -9,6 +9,10 @@ const privateKeyPath = process.env.PRIVATE_KEY_PATH ||
   "r-hub-2.2024-01-31.private-key.pem";
 const privateKey = fs.readFileSync(privateKeyPath, 'utf8')
 
+async function delay(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 class GHApp {
   constructor(appId, privateKey) {
     this.appId = appId;
@@ -132,6 +136,21 @@ class GHApp {
     const cnt = atob(ret.data.content);
     const sha = createHash('sha256').update(cnt).digest('hex');
     return { workflow: cnt, sha256: sha, response: ret };
+  }
+
+  async wait_for_repo(repo) {
+    const url = 'https://raw.githubusercontent.com/r-hub2/' +
+      repo + '/main/.github/workflows/rhub-rc.yaml';
+    await got.head(url, { retry: {
+      limit: 10,
+      statusCodes: [ 404 ],
+      calculateDelay: ({computedValue}) => {
+        console.log("witing " + computedValue);
+        return computedValue;
+      }
+
+    }});
+    return true;
   }
 }
 
