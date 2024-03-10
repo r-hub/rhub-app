@@ -1,6 +1,7 @@
 import { Octokit, App } from 'octokit'
 import { createHash } from 'crypto';
 import fs from 'fs';
+import got from 'got';
 
 const appId = process.env.APP_ID || "812047";
 const installId = 46807577;
@@ -31,6 +32,22 @@ class GHApp {
     return this.octokit_
   }
 
+  // we do not need to use the API for this one, well assuming that
+  // the repos are public
+  async repo_exists(repo) {
+    const url = 'https://github.com/' + 'r-hub2/' + repo;
+    try {
+      const ret = await got.head(url);
+      return true;
+    } catch (err) {
+      if (err.response.statusCode === 404) {
+        return false;
+      } else {
+        throw err;
+      }
+    }
+  }
+
   async create_repo(repo, options) {
     options = options || {};
     var oc = await this.octokit();
@@ -59,6 +76,27 @@ class GHApp {
         throw error;
       }
     }
+  }
+
+  async start_workflow(repo, url, config, name, id) {
+    var oc = await this.octokit();
+    var ret = await oc.request(
+      'POST /repos/{owner}/{repo}/actions/workflows/{workflow_id}/dispatches', {
+        owner: 'r-hub2',
+        repo: repo,
+        workflow_id: 'rhub-rc.yaml',
+        ref: 'main',
+        inputs: {
+          url: url,
+          config: config,
+          name: name,
+          id: id
+        },
+        headers: {
+          'X-GitHub-Api-Version': '2022-11-28'
+        }
+      }
+    )
   }
 
   // TODO: paginate

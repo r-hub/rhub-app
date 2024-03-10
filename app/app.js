@@ -22,7 +22,10 @@ xapp.use(express.urlencoded({ extended: false }));
 xapp.use(cookieParser());
 xapp.use(express.static(path.join(__dirname, 'public')));
 
+// JSON API
 xapp.use('/api', apiRouter);
+// download package files from the builds
+xapp.use('/api/-/package/', express.static('/uploads'));
 
 // catch 404 and forward to error handler
 xapp.use(function(req, res, next) {

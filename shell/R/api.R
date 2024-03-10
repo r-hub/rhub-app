@@ -34,6 +34,10 @@ api <- local({
 
   }
 
+  repo_exists <- function(repo) {
+    query(paste0("/-/admin/repo-exists/", repo))
+  }
+
   list(
     # Internals
     .internal           = environment(),
@@ -44,6 +48,8 @@ api <- local({
     job_info            = job_info,
 
     user_list           = user_list,
-    user_validate       = user_validate
+    user_validate       = user_validate,
+
+    repo_exists         = repo_exists
   )
 })
