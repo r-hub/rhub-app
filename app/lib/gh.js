@@ -9,10 +9,6 @@ const privateKeyPath = process.env.PRIVATE_KEY_PATH ||
   "r-hub-2.2024-01-31.private-key.pem";
 const privateKey = fs.readFileSync(privateKeyPath, 'utf8')
 
-async function delay(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
-
 class GHApp {
   constructor(appId, privateKey) {
     this.appId = appId;
@@ -65,9 +61,6 @@ class GHApp {
           description: options.description || 'Created by R-hub',
           include_all_branches: false,
           'private': false,
-          has_issues: false,
-          has_projects: false,
-          has_wiki: false,
           headers: {
             'X-GitHub-Api-Version': '2022-11-28'
           }

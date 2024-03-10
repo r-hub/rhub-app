@@ -71,7 +71,27 @@ router.post(
         [ repo]
       );
       const exists = (existsq.rows.length) > 0 && existsq.rows[0].exists;
-      send_message(res, "progress", "Creating job");
+      if (!exists) {
+        const repo_url = 'https://github.com/r-hub2/' + repo;
+        send_message(
+          res,
+          "progress",
+          "Creating repository at {.url " + repo_url + "}."
+        );
+        try {
+          await ghapp.create_repo(repo);
+        } catch(err) {
+          send_message(
+            res,
+            "error",
+            "Failed to create repository.\n" + err.toString()
+          );
+          return res.end();
+        }
+        send_message(res, "progress", "Waiting 5s for new repository")
+        await delay(5000);
+      }
+
       await pool.query(
         'INSERT INTO builds \
         (email, submitted_at, repo_name, file_name, upload_path, status) \
@@ -81,19 +101,6 @@ router.post(
           user.email, now, repo, path, filename, 'created'
         ]
       );
-
-      if (!exists) {
-        const repo_url = 'https://github.com/r-hub2/' + repo;
-        send_message(res, "progress", "Creating repository at " + repo_url);
-        try {
-          await ghapp.create_repo(repo);
-        } catch(err) {
-          send_message(res, "error", "Failed to create repository.");
-          return res.end();
-        }
-        send_message(res, "progress", "Waiting 5s for repository")
-        await delay(5000);
-      }
 
       send_message(res, "progress", "Creating build");
 //      const pkgurl = req.protocol + '://' + req.get('host') +
@@ -107,7 +114,8 @@ router.post(
         send_message(
           res,
           "error",
-          "Failed to start build job. Try again in a minute."
+          "Failed to start build job. Try again in a minute.\n" +
+            err.toString()
         );
         return res.end();
       }
@@ -119,7 +127,8 @@ router.post(
       send_message(
         res,
         "error",
-        "Internal R-hub error :(, please report an issue.\n" + err.toString()
+        "Internal R-hub error :(, please report an issue.\n" +
+          err.toString()
       )
       res.end();
     }
