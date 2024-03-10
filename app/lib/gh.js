@@ -65,6 +65,9 @@ class GHApp {
           description: options.description || 'Created by R-hub',
           include_all_branches: false,
           'private': false,
+          has_issues: false,
+          has_projects: false,
+          has_wiki: false,
           headers: {
             'X-GitHub-Api-Version': '2022-11-28'
           }
