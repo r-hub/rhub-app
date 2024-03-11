@@ -40,7 +40,7 @@ spec:
               value: postgres
             - name: PORT
               value: "3000"
-          image: rhub/rhub2-web:0.0.3
+          image: rhub/rhub2-web:0.0.7
           name: web
           ports:
             - containerPort: 3000
@@ -48,10 +48,26 @@ spec:
               protocol: TCP
           resources: {}
           volumeMounts:
+            - mountPath: /run/secrets/mailguntoken
+              name: mailguntoken
+            - mountPath: /run/secrets/ghappkey
+              name: ghappkey
             - mountPath: /uploads
               name: uploads
       restartPolicy: Always
       volumes:
+        - name: mailguntoken
+          secret:
+            items:
+              - key: mailguntoken
+                path: mailguntoken
+            secretName: mailguntoken
+        - name: ghappkey
+          secret:
+            items:
+              - key: ghappkey
+                path: ghappkey
+            secretName: ghappkey
         - name: uploads
           persistentVolumeClaim:
             claimName: uploads

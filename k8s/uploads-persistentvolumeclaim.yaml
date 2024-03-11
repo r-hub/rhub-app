@@ -7,7 +7,8 @@ metadata:
   name: uploads
 spec:
   accessModes:
-    - ReadWriteOnce
+    - ReadWriteMany
+  storageClassName: azurefiles
   resources:
     requests:
       storage: 10Gi

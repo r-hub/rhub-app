@@ -1,2 +1,3 @@
 *.pem
 *-key.txt
+/k8s/*secret.yaml

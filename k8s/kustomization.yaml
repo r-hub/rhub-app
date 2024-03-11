@@ -1,6 +1,8 @@
 resources:
   - dbdata-persistentvolumeclaim.yaml
   - uploads-persistentvolumeclaim.yaml
+  - mailguntoken-secret.yaml
+  - ghappkey-secret.yaml
   - web-deployment.yaml
   - web-service.yaml
   - db-deployment.yaml
@@ -8,3 +10,4 @@ resources:
   - shell-deployment.yaml
   - ingress.yaml
   - issuer.yaml
+  - azure-files.yaml

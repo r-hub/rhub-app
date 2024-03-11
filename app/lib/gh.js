@@ -6,7 +6,7 @@ import got from 'got';
 const appId = process.env.APP_ID || "812047";
 const installId = 46807577;
 const privateKeyPath = process.env.PRIVATE_KEY_PATH ||
-  "r-hub-2.2024-01-31.private-key.pem";
+  "/run/secrets/ghappkey/ghappkey";
 const privateKey = fs.readFileSync(privateKeyPath, 'utf8')
 
 class GHApp {

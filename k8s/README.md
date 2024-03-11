@@ -22,10 +22,12 @@ kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/
 
 ## Deploy app
 
-In the `k8s` directory:
+Generate k8s yaml files, to update image versions and to 
+create/update the volumes with the secrets.
 
 ```
-kubrectl apply -k .
+make k8s
+kubectl apply -k k8s
 ```
 
 ## Configure DNS
@@ -38,4 +40,3 @@ automatically configure HTTPS. The pod's name is something like
 configured. (Note that a local laptop might pick up the DNS
 earlier or later, use `/etc/hosts` if the laptop is not picking
 it up.)
-

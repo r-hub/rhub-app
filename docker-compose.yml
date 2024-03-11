@@ -5,6 +5,13 @@ volumes:
   uploads:
     labels:
       kompose.volume.size: '10Gi'
+      kompose.volume.storage-class-name: azurefiles
+
+secrets:
+   mailguntoken:
+     file: r-hub-2-mailgun-key.txt
+   ghappkey:
+     file: r-hub-2.2024-03-11.private-key.pem
 
 services:
 
@@ -12,7 +19,7 @@ services:
   # Puts submissions into /uploads + the DB
   web:
     platform: linux/amd64
-    image: rhub/rhub2-web:0.0.3
+    image: rhub/rhub2-web:0.0.7
     build:
       context: app
     environment:
@@ -24,6 +31,9 @@ services:
       - "3000:3000"
     volumes:
       - uploads:/uploads
+    secrets:
+      - mailguntoken
+      - ghappkey
     deploy:
       update_config:
         order: start-first

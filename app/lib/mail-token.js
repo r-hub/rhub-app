@@ -4,7 +4,7 @@ import fs from 'fs';
 const mailgun = new Mailgun(FormData);
 const domain = process.env.MAILGUN_DOMAIN || 'rhub.io';
 const keypath = process.env.MAILGUN_KEY_PATH ||
-   'r-hub-2-mailgun-key.txt'
+  '/run/secrets/mailguntoken/mailguntoken';
 const mg = mailgun.client({
   username: 'api',
   key: fs.readFileSync(keypath, 'utf8')
