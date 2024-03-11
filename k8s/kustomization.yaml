@@ -1,0 +1,10 @@
+resources:
+  - dbdata-persistentvolumeclaim.yaml
+  - uploads-persistentvolumeclaim.yaml
+  - web-deployment.yaml
+  - web-service.yaml
+  - db-deployment.yaml
+  - db-service.yaml
+  - shell-deployment.yaml
+  - ingress.yaml
+  - issuer.yaml

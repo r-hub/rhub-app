@@ -103,9 +103,8 @@ router.post(
       );
 
       send_message(res, "progress", "Creating build");
-//      const pkgurl = req.protocol + '://' + req.get('host') +
-//        '/-/api/-/package/' + path.split(/[\\/]/).pop();
-      const pkgurl = 'https://cran.r-project.org/src/contrib/tiff_0.1-12.tar.gz';
+      const pkgurl = req.protocol + '://' + req.get('host') +
+        '/-/api/-/package/' + path.split(/[\\/]/).pop();
       const name = data.name || data.config;
       const id = data.id || '';
       try {

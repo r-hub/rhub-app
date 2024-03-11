@@ -11,6 +11,7 @@ services:
   # Main web app that is open to the world, runs the API and the web site.
   # Puts submissions into /uploads + the DB
   web:
+    platform: linux/amd64
     image: rhub/rhub2-web:0.0.3
     build:
       context: app
@@ -36,9 +37,13 @@ services:
         delay: 5s
         max_attempts: 3
         window: 120s
+    labels:
+      - kompose.service.group=rhub2
+      - kompose.service.type=nodeport
 
   # Database of users, jobs, etc.
   db:
+    platform: linux/amd64
     image: rhub/rhub2-db:0.0.2
     build:
       context: db
@@ -62,9 +67,12 @@ services:
         delay: 5s
         max_attempts: 3
         window: 120s
+    labels:
+      - kompose.service.group=rhub2
 
   # For debugging, to connect to the web app or the DB
   shell:
+    platform: linux/amd64
     image: rhub/rhub2-shell:0.0.6
     build:
       context: shell
@@ -85,3 +93,5 @@ services:
         delay: 5s
         max_attempts: 3
         window: 120s
+    labels:
+      - kompose.service.group=rhub2
