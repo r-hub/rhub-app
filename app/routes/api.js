@@ -202,6 +202,7 @@ router.get('/-/admin/build/:id', async function(req, res, next) {
 // repos ------------------------------------------------------------------
 router.get("/-/admin/repo-exists/:name", async function(req, res, next) {
   try {
+    const user = await auth(req, res, { admin: true });
     const ret = await ghapp.repo_exists(req.params.name);
     res.send(ret);
   } catch (err) { next(err); }
@@ -209,6 +210,7 @@ router.get("/-/admin/repo-exists/:name", async function(req, res, next) {
 
 router.get("/-/admin/repo-wait/:name", async function(req, res, next) {
   try {
+    const user = await auth(req, res, { admin: true });
     const ret = await ghapp.wait_for_repo(req.params.name);
     res.send(ret);
   } catch (err) { next(err); }
@@ -218,6 +220,7 @@ router.get("/-/admin/repo-wait/:name", async function(req, res, next) {
 // TODO: pagination
 router.get('/-/admin/repos', async function(req, res, next) {
   try {
+    const user = await auth(req, res, { admin: true });
     var repos = await ghapp.list_repos();
     res.send(repos.data);
   } catch (err) { next(err); }
@@ -226,6 +229,7 @@ router.get('/-/admin/repos', async function(req, res, next) {
 // create GH repo
 router.post('/-/admin/repo/:name', async function(req, res, next) {
   try {
+    const user = await auth(req, res, { admin: true });
     var ret = await ghapp.create_repo(req.params.name);
     res.send(ret);
   } catch(err) { next(err); }
@@ -234,6 +238,7 @@ router.post('/-/admin/repo/:name', async function(req, res, next) {
 // delete GH repo
 router.delete('/-/admin/repo/:name', async function(req, res, next) {
   try {
+    const user = await auth(req, res, { admin: true });
     var ret = await ghapp.delete_repo(req.params.name);
     res.send(ret);
   } catch (err) { next(err); }
@@ -242,6 +247,7 @@ router.delete('/-/admin/repo/:name', async function(req, res, next) {
 // get workflow file from repo
 router.get('/-/admin/repo/:name/workflow', async function(req, res, next) {
 try {
+  const user = await auth(req, res, { admin: true });
   var ret = await ghapp.get_contents(req.params.name, '.github/workflows/rhub-rc.yaml')
   res.send(ret);
 } catch(err) { next(err); }
