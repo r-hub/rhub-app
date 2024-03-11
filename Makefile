@@ -7,19 +7,21 @@ build:
 push:
 	docker compose push
 
-deploy:
-	docker stack deploy \
-	        --compose-file=docker-compose.yml rhub2
-
 dev:
+	sed 's|linux/amd64|linux/arm64|' < docker-compose.yml \
+		> docker-compose-arm64.yml
+	docker-compose -f docker-compose-arm64.yml build
 	docker stack deploy \
-	        --compose-file=docker-compose.yml \
-	        --compose-file=docker-compose-dev.yml \
-	        rhub2
+		--resolve-image never \
+	    --compose-file=docker-compose-arm64.yml \
+	    --compose-file=docker-compose-dev.yml \
+	    rhub2
 
 dev-config:
+	@sed 's|linux/amd64|linux/arm64|' < docker-compose.yml \
+		> docker-compose-arm64.yml
 	@docker stack config \
-		--compose-file=docker-compose.yml \
+		--compose-file=docker-compose-arm64.yml \
 		--compose-file=docker-compose-dev.yml
 
 k8s:

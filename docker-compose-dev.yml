@@ -3,6 +3,9 @@ services:
     command: nodemon bin/www.js
     volumes:
       - ./app:/src
+    environment:
+      - PRIVATE_KEY_PATH=/run/secrets/ghappkey
+      - MAILGUN_KEY_PATH=/run/secrets/mailguntoken
 
   shell:
     volumes:

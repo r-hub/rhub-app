@@ -1,3 +1,4 @@
 *.pem
 *-key.txt
 /k8s/*secret.yaml
+/docker-compose-arm64.yml

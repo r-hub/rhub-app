@@ -18,9 +18,10 @@ services:
   # Main web app that is open to the world, runs the API and the web site.
   # Puts submissions into /uploads + the DB
   web:
-    platform: linux/amd64
     image: rhub/rhub2-web:0.0.7
     build:
+      platforms:
+        - linux/amd64
       context: app
     environment:
       - PG_USER=postgres
@@ -53,9 +54,10 @@ services:
 
   # Database of users, jobs, etc.
   db:
-    platform: linux/amd64
     image: rhub/rhub2-db:0.0.2
     build:
+      platforms:
+        - linux/amd64
       context: db
     environment:
       - PGDATA=/var/lib/postgresql/data
@@ -82,9 +84,10 @@ services:
 
   # For debugging, to connect to the web app or the DB
   shell:
-    platform: linux/amd64
     image: rhub/rhub2-shell:0.0.6
     build:
+      platforms:
+        - linux/amd64
       context: shell
     environment:
       - PG_USER=postgres
