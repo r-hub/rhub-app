@@ -6,6 +6,7 @@ services:
     environment:
       - PRIVATE_KEY_PATH=/run/secrets/ghappkey
       - MAILGUN_KEY_PATH=/run/secrets/mailguntoken
+      - NODE_ENV=development
 
   shell:
     volumes:

@@ -32,6 +32,8 @@ spec:
     spec:
       containers:
         - env:
+            - name: NODE_ENV
+              value: production
             - name: PG_HOST
               value: db
             - name: PG_PASS_FILE
@@ -40,7 +42,7 @@ spec:
               value: postgres
             - name: PORT
               value: "3000"
-          image: rhub/rhub2-web:0.0.7
+          image: rhub/rhub2-web:0.0.8
           name: web
           ports:
             - containerPort: 3000
