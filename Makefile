@@ -7,22 +7,21 @@ build:
 push:
 	docker compose push
 
-dev:
-	sed 's|linux/amd64|linux/arm64|' < docker-compose.yml \
-		> docker-compose-arm64.yml
-	docker-compose -f docker-compose-arm64.yml build
+docker-compose-local.yml: docker-compose.yml
+	if [[ "`docker info -f '{{ .Architecture }}'`" == "aarch64" ]]; then \
+		sed 's|linux/amd64|linux/arm64|' < docker-compose.yml \
+			> docker-compose-local.yml; \
+	else \
+		cp docker-compose.yml docker-compose-local.yml; \
+	fi
+
+dev: docker-compose-local.yml
+	docker-compose -f docker-compose-local.yml build
 	docker stack deploy \
 		--resolve-image never \
-	    --compose-file=docker-compose-arm64.yml \
+	    --compose-file=docker-compose-local.yml \
 	    --compose-file=docker-compose-dev.yml \
 	    rhub2
-
-dev-config:
-	@sed 's|linux/amd64|linux/arm64|' < docker-compose.yml \
-		> docker-compose-arm64.yml
-	@docker stack config \
-		--compose-file=docker-compose-arm64.yml \
-		--compose-file=docker-compose-dev.yml
 
 k8s:
 	kompose convert -f docker-compose.yml -o k8s
