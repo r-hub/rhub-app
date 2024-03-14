@@ -42,7 +42,7 @@ spec:
               value: postgres
             - name: PORT
               value: "3000"
-          image: rhub/rhub2-web:0.0.8
+          image: rhub/rhub2-web:0.0.9
           name: web
           ports:
             - containerPort: 3000

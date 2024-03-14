@@ -16,7 +16,12 @@ import apiRouter from './routes/api.js';
 xapp.set('views', path.join(__dirname, 'views'));
 xapp.set('view engine', 'ejs');
 
-xapp.use(logger('dev'));
+xapp.use(logger(
+  ':remote-addr - :remote-user [:date[clf]] ' +
+  '":method :url HTTP/:http-version" :status ' +
+  ':res[content-length] ":referrer" ":user-agent" ' +
+  ':response-time ms'
+));
 xapp.use(express.json());
 xapp.use(express.urlencoded({ extended: false }));
 xapp.use(cookieParser());
