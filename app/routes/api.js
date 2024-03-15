@@ -33,7 +33,7 @@ async function delay(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-// create job
+// create job -------------------------------------------------------------
 router.post(
   '/-/job/:package',
   upload.single('package'),
@@ -133,10 +133,7 @@ router.post(
     }
 });
 
-// admin API ==============================================================
-
-// users ------------------------------------------------------------------
-// create user, i.e. validate email
+// create user, i.e. validate email ---------------------------------------
 router.post('/-/user/validate', async function(req, res, next) {
   try {
     const data = req.body;
@@ -177,6 +174,23 @@ router.post('/-/user/validate', async function(req, res, next) {
   } catch(err) { next(err); }
 })
 
+// list repos for user ----------------------------------------------------
+
+router.get('/-/repos', async function(req, res, next) {
+  try {
+    const user = await auth(req, res, { admin: false });
+    const repos = await pool.query(
+      "SELECT DISTINCT repo_name FROM builds WHERE repo_name LIKE $1::text",
+      [user.repo_prefix + '%']
+    )
+    res.send(repos.rows);
+
+  } catch (err) { next(err); }
+});
+
+// admin API ==============================================================
+
+// users ------------------------------------------------------------------
 // admin: list all users
 // TODO: pagination
 router.get('/-/admin/users', async function(req, res, next) {
