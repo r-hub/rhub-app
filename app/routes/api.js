@@ -179,11 +179,17 @@ router.post('/-/user/validate', async function(req, res, next) {
 router.get('/-/repos', async function(req, res, next) {
   try {
     const user = await auth(req, res, { admin: false });
-    const repos = await pool.query(
+    const result = await pool.query(
       "SELECT DISTINCT repo_name FROM builds WHERE repo_name LIKE $1::text",
       [user.repo_prefix + '%']
     )
-    res.send(repos.rows);
+    var repos = result.rows;
+    repos = repos.map(function(x) {
+      x.repo_url = 'https://github.com/r-hub2/' + x.repo_name;
+      x.builds_url = x.repo_url + '/actions';
+      return x;
+    })
+    res.send(repos);
 
   } catch (err) { next(err); }
 });
