@@ -54,3 +54,15 @@ of the repo, and the private key of the GitHub App must be in
 `make k8s` will include them (base64 encoded, so essentially plain text)
 in `k8s/mailguntoken-secret.yaml` and `k8s/ghappkey-secret.yaml`.
 These files must not be included in the git repostory.
+
+## Updates
+
+1. Update and test the service locally.
+2. Bump the version number of the updated image in `docker-compose.yml`.
+3. `make build`
+4. `make push`
+5. `make k8s`
+6. `kubectl get pods`, to make sure that the current `kubectl` context
+   is the correct one.
+7. `kubectl apply -k k8s`
+8. `kubectl get pods` to make sure the update was successful.
