@@ -11,3 +11,4 @@ resources:
   - ingress.yaml
   - issuer.yaml
   - azure-files.yaml
+  - azure-files-db.yaml

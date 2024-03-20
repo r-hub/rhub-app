@@ -31,10 +31,10 @@ spec:
       containers:
         - env:
             - name: PGDATA
-              value: /var/lib/postgresql/data
+              value: /var/lib/postgresql/data/pgdata
             - name: POSTGRES_PASSWORD_FILE
               value: /db-password
-          image: rhub/rhub2-db:0.0.2
+          image: rhub/rhub2-db:0.0.6
           name: db
           ports:
             - containerPort: 5432
@@ -42,7 +42,7 @@ spec:
               protocol: TCP
           resources: {}
           volumeMounts:
-            - mountPath: /var/lib/postgresql
+            - mountPath: /var/lib/postgresql/data
               name: dbdata
       restartPolicy: Always
       volumes:

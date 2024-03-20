@@ -7,8 +7,9 @@ metadata:
   name: dbdata
 spec:
   accessModes:
-    - ReadWriteOnce
+    - ReadWriteMany
+  storageClassName: db-sc
   resources:
     requests:
-      storage: 1Gi
+      storage: 5Gi
 status: {}

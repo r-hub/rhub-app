@@ -1,7 +1,8 @@
 volumes:
   dbdata:
     labels:
-      kompose.volume.size: '1Gi'
+      kompose.volume.size: '5Gi'
+      kompose.volume.storage-class-name: db-sc
   uploads:
     labels:
       kompose.volume.size: '10Gi'
@@ -55,18 +56,18 @@ services:
 
   # Database of users, jobs, etc.
   db:
-    image: rhub/rhub2-db:0.0.2
+    image: rhub/rhub2-db:0.0.6
     build:
       platforms:
         - linux/amd64
       context: db
     environment:
-      - PGDATA=/var/lib/postgresql/data
+      - PGDATA=/var/lib/postgresql/data/pgdata
       - POSTGRES_PASSWORD_FILE=/db-password
     ports:
       - "5432:5432"
     volumes:
-      - dbdata:/var/lib/postgresql
+      - dbdata:/var/lib/postgresql/data
     deploy:
       update_config:
         order: start-first
