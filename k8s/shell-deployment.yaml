@@ -32,13 +32,23 @@ spec:
       containers:
         - env:
             - name: PG_HOST
-              value: db
+              value: server844543569.postgres.database.azure.com
             - name: PG_PASS_FILE
-              value: /db-password
+              value: /run/secrets/dbpass/dbpass
             - name: PG_USER
-              value: postgres
-          image: rhub/rhub2-shell:0.0.6
+              value: rhub2
+          image: rhub/rhub2-shell:0.0.9
           name: shell
           resources: {}
+          volumeMounts:
+            - mountPath: /run/secrets/dbpass
+              name: dbpass
       restartPolicy: Always
+      volumes:
+        - name: dbpass
+          secret:
+            items:
+              - key: dbpass
+                path: dbpass
+            secretName: dbpass
 status: {}

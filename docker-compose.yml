@@ -1,8 +1,4 @@
 volumes:
-  dbdata:
-    labels:
-      kompose.volume.size: '5Gi'
-      kompose.volume.storage-class-name: db-sc
   uploads:
     labels:
       kompose.volume.size: '10Gi'
@@ -13,21 +9,23 @@ secrets:
      file: r-hub-2-mailgun-key.txt
    ghappkey:
      file: r-hub-2.2024-03-11.private-key.pem
+   dbpass:
+     file: r-hub-2-postgress-pass.txt
 
 services:
 
   # Main web app that is open to the world, runs the API and the web site.
   # Puts submissions into /uploads + the DB
   web:
-    image: rhub/rhub2-web:0.0.11
+    image: rhub/rhub2-web:0.0.14
     build:
       platforms:
         - linux/amd64
       context: app
     environment:
-      - PG_USER=postgres
-      - PG_HOST=db
-      - PG_PASS_FILE=/db-password
+      - PG_USER=rhub2
+      - PG_HOST=server844543569.postgres.database.azure.com
+      - PG_PASS_FILE=/run/secrets/dbpass/dbpass
       - PORT=3000
       - NODE_ENV=production
     ports:
@@ -37,6 +35,7 @@ services:
     secrets:
       - mailguntoken
       - ghappkey
+      - dbpass
     deploy:
       update_config:
         order: start-first
@@ -54,47 +53,19 @@ services:
       - kompose.service.group=rhub2
       - kompose.service.type=nodeport
 
-  # Database of users, jobs, etc.
-  db:
-    image: rhub/rhub2-db:0.0.6
-    build:
-      platforms:
-        - linux/amd64
-      context: db
-    environment:
-      - PGDATA=/var/lib/postgresql/data/pgdata
-      - POSTGRES_PASSWORD_FILE=/db-password
-    ports:
-      - "5432:5432"
-    volumes:
-      - dbdata:/var/lib/postgresql/data
-    deploy:
-      update_config:
-        order: start-first
-        failure_action: rollback
-        delay: 10s
-      rollback_config:
-        parallelism: 0
-        order: stop-first
-      restart_policy:
-        condition: any
-        delay: 5s
-        max_attempts: 3
-        window: 120s
-    labels:
-      - kompose.service.group=rhub2
-
   # For debugging, to connect to the web app or the DB
   shell:
-    image: rhub/rhub2-shell:0.0.6
+    image: rhub/rhub2-shell:0.0.9
     build:
       platforms:
         - linux/amd64
       context: shell
     environment:
-      - PG_USER=postgres
-      - PG_HOST=db
-      - PG_PASS_FILE=/db-password
+      - PG_USER=rhub2
+      - PG_HOST=server844543569.postgres.database.azure.com
+      - PG_PASS_FILE=/run/secrets/dbpass/dbpass
+    secrets:
+      - dbpass
     deploy:
       update_config:
         order: start-first

@@ -1,13 +1,20 @@
 api <- local({
 
   base_url <- "http://web:3000/api"
+  token <- function() {
+    t <- Sys.getenv("RHUB2_TOKEN")
+    if (t == "") {
+      warning("RHUB2_TOKEN is not set!")
+    }
+    t
+  }
 
   query <- function(ep, method = "GET", simplifyVector = TRUE, form = NULL) {
     req <- httr2::request(base_url) |>
       httr2::req_method(method) |>
       httr2::req_url_path_append(ep) |>
       httr2::req_headers(
-        Authorization = paste("Bearer", Sys.getenv("RHUB2_TOKEN"))
+        Authorization = paste("Bearer", token())
       )
 
     if (method == "POST") {

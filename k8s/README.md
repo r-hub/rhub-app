@@ -55,6 +55,44 @@ of the repo, and the private key of the GitHub App must be in
 in `k8s/mailguntoken-secret.yaml` and `k8s/ghappkey-secret.yaml`.
 These files must not be included in the git repostory.
 
+The database password is in `r-hub-2-postgress-pass.txt`.
+
+## Database
+
+The database is part of the deployment for local testing, but not
+for the production system, because running PostgreSQL on Kubernetes is
+quite complicated. So it is a PostgreSQL flexible server on Azure,
+in the same virtual network as the Kubernetes cluster.
+
+Create a database server:
+```
+az postgres flexible-server create --vnet aks-vnet-38300345 \
+   --subnet aks-subnet-postgres --location westus3 \
+   --resource-group MC_r-hub_rhub2_westus3
+```
+
+Then create the database and the user, using the default password.
+This works from any shell that has access to the databse server,
+e.g. using `psql` on the shell pod is also fine.
+
+```
+psql -U lethalgerbil5 -h server844543569.postgres.database.azure.com -d postgres
+```
+
+```
+CREATE USER rhub2 NOCREATEDB PASSWORD '<pass>';
+CREATE DATABASE rhub2;
+GRANT ALL PRIVILEGES ON DATABASE rhub2 TO rhub2;
+```
+
+Check that you can connect to the new DB with the new user:
+
+```
+psql -U rhub2 -h server844543569.postgres.database.azure.com
+```
+
+Run the code from `create.sql`.
+
 ## Updates
 
 1. Update and test the service locally.

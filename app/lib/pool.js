@@ -8,7 +8,8 @@ const pool = new pg.Pool({
     host: process.env.PG_HOST,
     user: process.env.PG_USER || 'postgres',
     db: 'postgres',
-    password: pass
+    password: pass,
+    ssl: true
 })
 
 export default pool;

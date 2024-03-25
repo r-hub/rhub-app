@@ -1,3 +1,6 @@
+volumes:
+  dbdata:
+
 services:
   web:
     command: nodemon bin/www.js
@@ -6,6 +9,9 @@ services:
     environment:
       - PRIVATE_KEY_PATH=/run/secrets/ghappkey
       - MAILGUN_KEY_PATH=/run/secrets/mailguntoken
+      - PG_USER=postgres
+      - PG_HOST=db
+      - PG_PASS_FILE=/db-password
       - NODE_ENV=development
 
   shell:
@@ -14,3 +20,35 @@ services:
       - ./shell/R:/R
     environment:
       - RHUB2_TOKEN=2f646deb-cbe1-443e-8d4a-890534c96633
+      - PG_USER=postgres
+      - PG_HOST=db
+      - PG_PASS_FILE=/db-password
+
+  db:
+    image: rhub/rhub2-db:0.0.6
+    build:
+      platforms:
+        - linux/amd64
+      context: db
+    environment:
+      - PGDATA=/var/lib/postgresql/data/pgdata
+      - POSTGRES_PASSWORD_FILE=/db-password
+    ports:
+      - "5432:5432"
+    volumes:
+      - dbdata:/var/lib/postgresql/data
+    secrets:
+      - dbpass
+    deploy:
+      update_config:
+        order: start-first
+        failure_action: rollback
+        delay: 10s
+      rollback_config:
+        parallelism: 0
+        order: stop-first
+      restart_policy:
+        condition: any
+        delay: 5s
+        max_attempts: 3
+        window: 120s

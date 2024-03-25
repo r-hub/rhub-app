@@ -1,4 +1,5 @@
 *.pem
 *-key.txt
+*-pass.txt
 /k8s/*secret.yaml
 /docker-compose-local.yml

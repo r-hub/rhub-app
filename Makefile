@@ -26,9 +26,6 @@ dev: docker-compose-local.yml
 k8s:
 	kompose convert -f docker-compose.yml -o k8s
 	sed -i .bak '/type: Recreate/d' k8s/web-deployment.yaml
-	sed -i .bak '/type: Recreate/d' k8s/db-deployment.yaml
-	sed -i .bak 's/ReadWriteOnce/ReadWriteMany\n  storageClassName: db-sc/' \
-		k8s/dbdata-persistentvolumeclaim.yaml
 	sed -i .bak 's/ReadWriteOnce/ReadWriteMany\n  storageClassName: azurefiles/' \
 		k8s/uploads-persistentvolumeclaim.yaml
 	rm k8s/*.bak

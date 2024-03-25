@@ -2,8 +2,8 @@ db <- local({
   con <- NULL
   db_connect <- function() {
     host <- Sys.getenv("PG_HOST")
-    user <- "postgres"
-    pass <- readLines(Sys.getenv("PG_PASS_FILE"))
+    user <- Sys.getenv("PG_USER", "postgres")
+    pass <- readLines(Sys.getenv("PG_PASS_FILE"), warn = FALSE)
     if (is.null(con) || ! DBI::dbIsValid(con)) {
       con <<- DBI::dbConnect(
         RPostgres::Postgres(),
