@@ -17,7 +17,7 @@ services:
   # Main web app that is open to the world, runs the API and the web site.
   # Puts submissions into /uploads + the DB
   web:
-    image: rhub/rhub2-web:0.0.18
+    image: rhub/rhub2-web:0.0.20
     build:
       platforms:
         - linux/amd64

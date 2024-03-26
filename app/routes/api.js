@@ -38,7 +38,8 @@ router.use("/-/package/:path", async function(req, res, next) {
   try {
     const file_name = "/uploads/" + req.params.path;
     await pool.query(
-      "UPDATE builds SET status = 'started' WHERE file_name = $1::text",
+      "UPDATE builds SET status = 'started' \
+       WHERE status = 'created' AND file_name = $1::text",
       [file_name]
     );
   } catch(err) {

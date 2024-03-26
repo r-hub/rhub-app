@@ -4,6 +4,32 @@ import { fileURLToPath } from 'url';
 import logger from 'morgan';
 import cookieParser from 'cookie-parser';
 import createError from 'http-errors';
+import { spawn } from "child_process";
+
+async function cmd(command) {
+  let p = spawn(command[0], command.slice(1));
+  return new Promise((resolveFunc) => {
+    p.on("exit", (code) => {
+      resolveFunc(code);
+    });
+  });
+}
+
+import { CronJob } from 'cron';
+
+const job = CronJob.from({
+	cronTime: '0 16 * * *',
+  onTick: async function() {
+    console.log('Cleaning up /uploads');
+    await cmd([
+      'find', '/uploads/', '-type', 'f', '-mtime', '+1',
+      '-exec', 'rm', '-f', '{}', ';'
+    ]);
+    console.log('Cleaned up old files in /uploads');
+  },
+	start: true, // start
+	timeZone: 'Europe/Madrid'
+});
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);

@@ -42,7 +42,7 @@ spec:
               value: rhub2
             - name: PORT
               value: "3000"
-          image: rhub/rhub2-web:0.0.18
+          image: rhub/rhub2-web:0.0.20
           name: web
           ports:
             - containerPort: 3000
