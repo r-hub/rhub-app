@@ -55,6 +55,29 @@ router.post(
           }));
       }
 
+      // Force 5 minutes delay between submissions
+      const last = await pool.query(
+        'SELECT email, submitted_at FROM builds \
+         WHERE email = $1::text ORDER BY submitted_at DESC LIMIT 1',
+        [user.email]
+      );
+
+      if (last.rows.length > 0) {
+        const lastdate = last.rows[0].submitted_at;
+        const diff = now - new Date(lastdate);
+        if (diff < 5 * 60 * 1000) {
+          return res.set('Content-Type', 'application/json; charset=utf-8')
+          .status(401)
+          .send(JSON.stringify({
+            "result": "error",
+            "message":
+              "Need to wait at least 5 minutes between submissions. " +
+              "Last submission was " + Math.round(diff / 1000) +
+              " seconds ago."
+          }))
+        }
+      }
+
       // if client drops the connection, end it
       res.on('close', () => { res.end(); });
 
@@ -63,8 +86,6 @@ router.post(
       res.setHeader('Access-Control-Allow-Origin', '*');
       res.setHeader('Connection', 'keep-alive');
       res.flushHeaders();
-
-      // TODO: force configurable delay between submissions
 
       // Check if we have builds for this repo already
       const existsq = await pool.query(
