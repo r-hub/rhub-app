@@ -12,6 +12,7 @@ services:
       - PG_USER=postgres
       - PG_HOST=db
       - PG_PASS_FILE=/db-password
+      - PG_SSL=false
       - NODE_ENV=development
 
   shell:
@@ -23,12 +24,11 @@ services:
       - PG_USER=postgres
       - PG_HOST=db
       - PG_PASS_FILE=/db-password
+      - PG_SSL=false
 
   db:
-    image: rhub/rhub2-db:0.0.6
+    image: rhub/rhub2-db:0.0.8
     build:
-      platforms:
-        - linux/amd64
       context: db
     environment:
       - PGDATA=/var/lib/postgresql/data/pgdata

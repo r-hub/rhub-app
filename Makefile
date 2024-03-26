@@ -16,7 +16,7 @@ docker-compose-local.yml: docker-compose.yml
 	fi
 
 dev: docker-compose-local.yml
-	docker-compose -f docker-compose-local.yml build
+	docker-compose -f docker-compose-local.yml -f docker-compose-dev.yml build
 	docker stack deploy \
 		--resolve-image never \
 	    --compose-file=docker-compose-local.yml \
