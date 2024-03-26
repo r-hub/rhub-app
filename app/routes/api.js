@@ -65,31 +65,32 @@ router.post(
       res.flushHeaders();
 
       // TODO: force configurable delay between submissions
+
       // Check if we have builds for this repo already
       const existsq = await pool.query(
         'SELECT EXISTS(SELECT id FROM builds WHERE repo_name = $1::text)',
-        [ repo]
+        [repo]
       );
       const exists = (existsq.rows.length) > 0 && existsq.rows[0].exists;
+      const repo_url = 'https://github.com/r-hub2/' + repo;
       if (!exists) {
-        const repo_url = 'https://github.com/r-hub2/' + repo;
-        send_message(
-          res,
-          "progress",
-          "Creating repository at {.url " + repo_url + "}."
+        send_message(res, "progress",
+          `Creating repository at {.url ${repo_url}}.`
         );
         try {
           await ghapp.create_repo(repo);
         } catch(err) {
-          send_message(
-            res,
-            "error",
-            "Failed to create repository.\n" + err.toString()
+          send_message(res, "error",
+            "Failed to create repository:\n" + err.toString()
           );
           return res.end();
         }
-        send_message(res, "progress", "Waiting 5s for new repository")
+        send_message(res, "progress", "Waiting 5s for new repository.")
         await delay(5000);
+      } else {
+        send_message(res, "progress",
+          `Repository exists at {.url ${repo_url}}.`
+        );
       }
 
       await pool.query(
@@ -102,30 +103,34 @@ router.post(
         ]
       );
 
-      send_message(res, "progress", "Creating build");
       const pkgurl = req.protocol + '://' + req.get('host') +
         '/api/-/package/' + path.split(/[\\/]/).pop();
       const name = data.name || data.config;
       const id = data.id || '';
+      send_message(res, "progress",
+        `Creating build {.emph ${id}} at {.url ${repo_url}/actions}.`
+      );
       try {
         await ghapp.start_workflow(repo, pkgurl, data.config, name, id);
       } catch(err) {
-        send_message(
-          res,
-          "error",
+        send_message(res, "error",
           "Failed to start build job. Try again in a minute.\n" +
             err.toString()
         );
         return res.end();
       }
 
-      send_message(res, "result", "OK")
+      send_message(res, "result", {
+        result: "OK",
+        repo_url: repo_url,
+        actions_url: repo_url + "/actions",
+        id: id,
+        name: name
+      })
       res.end();
 
     } catch(err) {
-      send_message(
-        res,
-        "error",
+      send_message(res, "error",
         "Internal R-hub error :(, please report an issue.\n" +
           err.toString()
       )
