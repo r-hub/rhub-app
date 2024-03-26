@@ -33,6 +33,21 @@ async function delay(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+// download package files from the builds ---------------------------------
+router.use("/-/package/:path", async function(req, res, next) {
+  try {
+    const file_name = "/uploads/" + req.params.path;
+    await pool.query(
+      "UPDATE builds SET status = 'started' WHERE file_name = $1::text",
+      [file_name]
+    );
+  } catch(err) {
+    console.log("Error while serving package file: " + err.toString())
+  }
+  next()
+});
+router.use('/-/package/', express.static('/uploads'));
+
 // create job -------------------------------------------------------------
 router.post(
   '/-/job/:package',

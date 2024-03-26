@@ -25,7 +25,7 @@ CREATE TABLE IF NOT EXISTS builds (
     repo_name TEXT,
     file_name TEXT,
     upload_path TEXT,
-    -- created, submitted
+    -- created, started
     status TEXT,
     error TEXT,
     link TEXT
