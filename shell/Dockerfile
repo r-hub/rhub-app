@@ -8,6 +8,4 @@ RUN installr -d -p \
     -a "libcurl postgresql13-client" \
     deps::.
 
-RUN echo "dbpassword" > /db-password
-
 CMD ["crond", "-f"]

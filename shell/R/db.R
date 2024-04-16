@@ -1,15 +1,16 @@
 db <- local({
   con <- NULL
   db_connect <- function() {
-    host <- Sys.getenv("PG_HOST")
-    user <- Sys.getenv("PG_USER", "postgres")
-    pass <- readLines(Sys.getenv("PG_PASS_FILE"), warn = FALSE)
+    url <- Sys.getenv("DATABASE_URL")
+    psd <- httr2::url_parse(url)
     if (is.null(con) || ! DBI::dbIsValid(con)) {
       con <<- DBI::dbConnect(
         RPostgres::Postgres(),
-        host = host,
-        user = user,
-        pass = pass
+        dbname = sub("^/", "", psd$path),
+        host = psd$hostname,
+        port = psd$port,
+        user = psd$username,
+        pass = psd$password
       )
     }
   }

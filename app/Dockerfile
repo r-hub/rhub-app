@@ -2,12 +2,11 @@ FROM node:20-alpine
 
 WORKDIR /src
 COPY package*.json /
-EXPOSE 3000
+EXPOSE 80
+ENV PORT=80
 
 RUN npm install -g nodemon && npm install
 COPY . .
 RUN npm ci
-
-RUN echo "dbpassword" > /db-password
 
 CMD ["npm", "start"]

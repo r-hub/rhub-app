@@ -1,13 +1,10 @@
-import { Octokit, App } from 'octokit'
+import { App } from 'octokit'
 import { createHash } from 'crypto';
-import fs from 'fs';
 import got from 'got';
 
 const appId = process.env.APP_ID || "812047";
 const installId = 46807577;
-const privateKeyPath = process.env.PRIVATE_KEY_PATH ||
-  "/run/secrets/ghappkey/ghappkey";
-const privateKey = fs.readFileSync(privateKeyPath, 'utf8')
+const privateKey = process.env.PRIVATE_KEY;
 
 class GHApp {
   constructor(appId, privateKey) {

@@ -1,83 +1,43 @@
 volumes:
+  dbdata:
   uploads:
-    labels:
-      kompose.volume.size: '10Gi'
-      kompose.volume.storage-class-name: azurefiles
-
-secrets:
-   mailguntoken:
-     file: r-hub-2-mailgun-key.txt
-   ghappkey:
-     file: r-hub-2.2024-03-11.private-key.pem
-   dbpass:
-     file: r-hub-2-postgress-pass.txt
 
 services:
-
-  # Main web app that is open to the world, runs the API and the web site.
-  # Puts submissions into /uploads + the DB
   web:
-    image: rhub/rhub2-web:0.0.20
+    image: rhub/rhub2-web:0.99.0
     build:
-      platforms:
-        - linux/amd64
       context: app
-    environment:
-      - PG_USER=rhub2
-      - PG_HOST=server844543569.postgres.database.azure.com
-      - PG_PASS_FILE=/run/secrets/dbpass/dbpass
-      - PORT=3000
-      - NODE_ENV=production
-    ports:
-      - "3000:3000"
+    command: nodemon bin/www.js
     volumes:
+      - ./app:/src
       - uploads:/uploads
-    secrets:
-      - mailguntoken
-      - ghappkey
-      - dbpass
-    deploy:
-      update_config:
-        order: start-first
-        failure_action: rollback
-        delay: 10s
-      rollback_config:
-        parallelism: 0
-        order: stop-first
-      restart_policy:
-        condition: any
-        delay: 5s
-        max_attempts: 3
-        window: 120s
-    labels:
-      - kompose.service.group=rhub2
-      - kompose.service.type=nodeport
+    environment:
+      - PRIVATE_KEY=${PRIVATE_KEY}
+      - MAILGUN_KEY=${MAILGUN_KEY}
+      - DATABASE_URL=postgres://postgres:secret@db:5432/postgres
+      - NODE_ENV=development
+    ports:
+      - "3000:80"
 
   # For debugging, to connect to the web app or the DB
   shell:
-    image: rhub/rhub2-shell:0.0.9
+    image: rhub/rhub2-shell:0.99.0
     build:
-      platforms:
-        - linux/amd64
       context: shell
+    volumes:
+      - ./shell/DESCRIPTION:/DESCRIPTION
+      - ./shell/R:/R
     environment:
-      - PG_USER=rhub2
-      - PG_HOST=server844543569.postgres.database.azure.com
-      - PG_PASS_FILE=/run/secrets/dbpass/dbpass
-    secrets:
-      - dbpass
-    deploy:
-      update_config:
-        order: start-first
-        failure_action: rollback
-        delay: 10s
-      rollback_config:
-        parallelism: 0
-        order: stop-first
-      restart_policy:
-        condition: any
-        delay: 5s
-        max_attempts: 3
-        window: 120s
-    labels:
-      - kompose.service.group=rhub2
+      - DATABASE_URL=postgres://postgres:secret@db:5432/postgres
+      - RHUB2_TOKEN=2f646deb-cbe1-443e-8d4a-890534c96633
+
+  db:
+    image: "postgres:16.2-bookworm"
+    environment:
+      - PGDATA=/var/lib/postgresql/data
+      - POSTGRES_PASSWORD=secret
+    ports:
+      - "5432:5432"
+    volumes:
+      - dbdata:/var/lib/postgresql
+      - ./db/create.sql:/docker-entrypoint-initdb.d/1-create.sql

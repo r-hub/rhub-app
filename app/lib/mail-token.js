@@ -1,13 +1,10 @@
 import Mailgun from 'mailgun.js';
-import fs from 'fs';
 
 const mailgun = new Mailgun(FormData);
 const domain = process.env.MAILGUN_DOMAIN || 'rhub.io';
-const keypath = process.env.MAILGUN_KEY_PATH ||
-  '/run/secrets/mailguntoken/mailguntoken';
 const mg = mailgun.client({
   username: 'api',
-  key: fs.readFileSync(keypath, 'utf8')
+  key: process.env.MAILGUN_KEY
 });
 
 async function mail_token(email, token) {
