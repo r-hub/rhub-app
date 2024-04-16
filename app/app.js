@@ -48,8 +48,8 @@ xapp.use(logger(
   ':res[content-length] ":referrer" ":user-agent" ' +
   ':response-time ms'
 ));
-xapp.use(express.json({ limit: '100mb'}));
-xapp.use(express.urlencoded({ extended: false }));
+xapp.use(express.json());
+xapp.use(express.urlencoded({ extended: true }));
 xapp.use(cookieParser());
 xapp.use(express.static(path.join(__dirname, 'public')));
 

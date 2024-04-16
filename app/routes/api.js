@@ -176,11 +176,20 @@ router.post(
 });
 
 // create user, i.e. validate email ---------------------------------------
-router.post('/-/user/validate',
-  upload.single('package'),
-  async function(req, res, next) {
+router.post('/-/user/validate', async function(req, res, next) {
   try {
     const data = req.body;
+    // workaround for client bug
+    if (! data.email) {
+      const maybe = Object.keys(data)[0];
+      if (typeof maybe === "string") {
+        const possibly = JSON.parse(maybe).email;
+        if (typeof possibly === "string") {
+          data.email = possibly;
+        }
+      }
+    }
+
     // If there is no email
     if (! data.email ) {
       return res.set('Content-Type', 'application/json; charset=utf-8')
