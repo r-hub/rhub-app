@@ -6,7 +6,8 @@ services:
   web:
     image: rhub/rhub2-web:0.99.0
     build:
-      context: app
+      context: .
+      dockerfile: ./app/Dockerfile
     command: nodemon bin/www.js
     volumes:
       - ./app:/src
