@@ -176,7 +176,9 @@ router.post(
 });
 
 // create user, i.e. validate email ---------------------------------------
-router.post('/-/user/validate', async function(req, res, next) {
+router.post('/-/user/validate',
+  upload.single('package'),
+  async function(req, res, next) {
   try {
     const data = req.body;
     // If there is no email
