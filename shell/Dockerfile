@@ -1,7 +1,7 @@
 FROM rhub/r-minimal
 
-COPY DESCRIPTION /
-COPY R /R
+COPY shell/DESCRIPTION /
+COPY shell/R /R
 WORKDIR /R
 RUN installr -d -p \
     -t "postgresql13-dev curl-dev" \

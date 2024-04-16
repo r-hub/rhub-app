@@ -23,7 +23,8 @@ services:
   shell:
     image: rhub/rhub2-shell:0.99.0
     build:
-      context: shell
+      context: .
+      dockerfile: ./shell/Dockerfile
     volumes:
       - ./shell/DESCRIPTION:/DESCRIPTION
       - ./shell/R:/R
