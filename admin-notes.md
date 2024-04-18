@@ -77,3 +77,17 @@ and get certs:
 dokku domains:add rhub2 builder2.rhub.io
 dokku letsencrypt:enable rhub2
 ```
+
+# 2024-04-18
+
+Need to set the max allowed body size to a larger value:
+```
+dokku nginx:set rhub2  client-max-body-size 20m
+```
+
+This is only used for the next deploy, so we might as well
+edit the config file directly and then reload nginx:
+```
+emacs /home/dokku/rhub2/nginx.conf
+systemctl reload nginx.service
+```
